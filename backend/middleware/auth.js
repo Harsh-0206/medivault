@@ -1,11 +1,12 @@
+
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
 // --------------------
-// VERIFY JWT
+// VERIFY JWT (AUTH MIDDLEWARE)
 // --------------------
-export function auth(req, res, next) {
+export function authenticateToken(req, res, next) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader)

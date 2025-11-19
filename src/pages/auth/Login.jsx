@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Heart, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const [role, setRole] = useState("patient");
@@ -11,15 +12,46 @@ export default function Login() {
   const navigate = useNavigate();
 
   async function submit(e) {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    // (Backend integration will come later)
-    setTimeout(() => {
-      alert(`Logged in as ${role}`);
-      navigate("/");
-    }, 1500);
+  try {
+    const res = await fetch("http://localhost:4000/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, role }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Login failed");
+      setIsLoading(false);
+      return;
+    }
+
+    // Save token
+    localStorage.setItem("mv_token", data.token);
+    localStorage.setItem("mv_role", data.role);
+
+
+    // Redirect
+    if (role === "patient") {
+      navigate("/patient-dashboard");
+    } else if (role === "doctor") {
+      navigate("/doctor");
+    } else if (role === "admin") {
+      navigate("/admin");
+    }
+
+  } catch (err) {
+    alert("Network error: " + err.message);
+  } finally {
+    setIsLoading(false);
   }
+}
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#eef7ff] via-[#e3f2ff] to-[#eef7ff] pt-28 px-6 relative">

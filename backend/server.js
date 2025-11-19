@@ -2,11 +2,12 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
+import patientRoutes from "./routes/patientRoutes.js";
 
 
 const app = express();
 
-const allowedOrigin = "http://localhost:5174";
+const allowedOrigin = "http://localhost:5173";
 
 console.log(">>> SERVER STARTED (server.js running) <<<");
 
@@ -39,7 +40,15 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 app.use("/auth", authRoutes);
+app.use("/patient", patientRoutes);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong!" });
+});
 
 app.listen(4000, () => {
   console.log("Server running on port 4000");
 });
+
+export default app; 

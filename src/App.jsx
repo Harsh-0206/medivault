@@ -1,17 +1,19 @@
 import React from 'react'
+import { Navigate } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom'
 
 import Landing from './pages/Landing'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
-import DoctorRegister from './pages/auth/DoctorRegister'
+// import DoctorRegister from './pages/auth/DoctorRegister'
 
 import PatientDashboard from './pages/patient/PatientDashboard'
-import PatientProfile from './pages/patient/PatientProfile'
+// import PatientProfile from './pages/patient/PatientProfile'
 import DoctorDashboard from './pages/doctor/DoctorDashboard'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import RequireAuth from './components/auth/RequireAuth';
 
-import ProtectedRoute from './components/auth/ProtectedRoute'
+// import ProtectedRoute from './components/auth/ProtectedRoute'
 import AuthNavBar from './components/layout/AuthNavBar'
 
 export default function App(){
@@ -25,33 +27,26 @@ export default function App(){
         <Route path="/" element={<Landing/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
-        <Route path="/register-doctor" element={<DoctorRegister/>} />
+        {/* <Route path="/register-doctor" element={<DoctorRegister/>} /> */}
 
         {/* Patient */}
         <Route
-          path="/patient"
+          path="/patient-dashboard"
           element={
-            <ProtectedRoute role="patient">
+            <RequireAuth role="patient">
               <PatientDashboard />
-            </ProtectedRoute>
+            </RequireAuth>
           }
         />
-        <Route
-          path="/patient/profile/:id"
-          element={
-            <ProtectedRoute role="patient">
-              <PatientProfile />
-            </ProtectedRoute>
-          }
-        />
+        
 
         {/* Doctor */}
         <Route
           path="/doctor"
           element={
-            <ProtectedRoute role="doctor">
+            <RequireAuth role="doctor">
               <DoctorDashboard />
-            </ProtectedRoute>
+            </RequireAuth>
           }
         />
 
@@ -59,11 +54,12 @@ export default function App(){
         <Route
           path="/admin"
           element={
-            <ProtectedRoute role="admin">
+            <RequireAuth role="admin">
               <AdminDashboard />
-            </ProtectedRoute>
+            </RequireAuth>
           }
         />
+       <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
 
