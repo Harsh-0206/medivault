@@ -12,6 +12,14 @@ export default function Login() {
   const navigate = useNavigate();
 
   async function submit(e) {
+    // TEMP BYPASS
+// if (email === "doctor@test.com") {
+//   localStorage.setItem("mv_token", "dummy");
+//   localStorage.setItem("mv_role", "doctor");
+//   navigate("/doctor");
+//   return;
+// }
+
   e.preventDefault();
   setIsLoading(true);
 

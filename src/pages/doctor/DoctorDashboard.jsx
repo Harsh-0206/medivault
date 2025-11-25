@@ -1,44 +1,115 @@
-import React, { useState, useEffect } from 'react'
-import api from '../../api/axiosClient'
+import PrescriptionForm from "/src/pages/doctor/PrescriptionForm.jsx"; // adjust path
+import React, { useEffect, useState } from "react";
+function PatientSearch() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const token = localStorage.getItem("mv_token");
 
-export default function DoctorDashboard(){
-  const [pending, setPending] = useState([])
-  const [search, setSearch] = useState('')
-  const [results, setResults] = useState([])
-  useEffect(()=>{ api.get('/doctor/pending').then(r=>setPending(r.data)).catch(()=>{}) }, [])
-
-  async function doSearch(){
-    const r = await api.get(`/patients/search?q=${encodeURIComponent(search)}`)
-    setResults(r.data)
+  async function search() {
+    const res = await fetch(`http://localhost:4000/doctor/search?query=${query}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    setResults(data.patients);
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <h1 className="text-2xl font-semibold">Doctor Dashboard</h1>
-      <div className="mt-6 bg-white p-4 rounded shadow">
-        <h3 className="font-semibold">Search Patient by DHI / Name</h3>
-        <div className="flex gap-2 mt-3">
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="DHI or name" className="flex-1 p-2 border rounded" />
-          <button onClick={doSearch} className="px-3 py-1 bg-[#7A1F2B] text-white rounded">Search</button>
-        </div>
-        <div className="mt-4">
-          {results.map(p => (
-            <div key={p.patientId} className="p-2 border rounded my-2 flex justify-between items-center">
-              <div>
-                <div className="font-semibold">{p.firstName} {p.lastName}</div>
-                <div className="text-sm text-slate-600">DHI: {p.dhi}</div>
-              </div>
-              <div>
-                <a href={`/patient/profile/${p.patientId}`} className="px-3 py-1 border rounded">Open</a>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="mt-10 p-5 bg-white rounded-xl shadow">
+      <h2 className="text-xl font-semibold">Search Patients</h2>
+
+      <div className="flex gap-3 mt-3">
+        <input 
+          className="border p-2 rounded w-full"
+          placeholder="Enter Patient ID / Name / Phone"
+          value={query}
+          onChange={(e)=>setQuery(e.target.value)}
+        />
+        <button 
+          onClick={search}
+          className="px-4 py-2 bg-sky-600 text-white rounded"
+        >
+          Search
+        </button>
       </div>
-      <div className="mt-6 bg-white p-4 rounded shadow">
-        <h3 className="font-semibold">Your Verification Status</h3>
-        <p className="text-sm text-slate-600">Pending approvals shown on admin console.</p>
+
+      <div className="mt-4">
+        {results.map((p)=>(
+          <div key={p.id} className="border-b p-2">
+            <p className="font-semibold">{p.name}</p>
+            <p className="text-sm">{p.email}</p>
+          </div>
+        ))}
       </div>
     </div>
-  )
+  );
+}
+
+export default function DoctorDashboard() {
+  const [data, setData] = useState(null);
+  const token = localStorage.getItem("mv_token");
+
+  async function load() {
+    const res = await fetch("http://localhost:4000/doctor/dashboard", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const d = await res.json();
+    setData(d);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  if (!data) return <div>Loading...</div>;
+
+  return (
+    <div className="p-6">
+
+      <h1 className="text-3xl font-bold text-sky-600">Doctor Dashboard</h1>
+      {/* ADD PATIENT SEARCH HERE */}
+      <PatientSearch />
+      <PrescriptionForm onCreated={(prescription) => {
+  // optional: refresh dashboard after creation
+  load(); // if your component has load() to fetch dashboard
+}} />
+      {/* Stats */}
+      
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="p-5 bg-white rounded-xl shadow">
+          <h2 className="text-xl font-semibold">Today’s Appointments</h2>
+          <p className="text-3xl font-bold text-sky-600">
+            {data.todayAppointments.length}
+          </p>
+        </div>
+
+        <div className="p-5 bg-white rounded-xl shadow">
+          <h2 className="text-xl font-semibold">Total Patients</h2>
+          <p className="text-3xl font-bold text-sky-600">
+            {data.totalPatients}
+          </p>
+        </div>
+
+        <div className="p-5 bg-white rounded-xl shadow">
+          <h2 className="text-xl font-semibold">Recent Prescriptions</h2>
+          <p className="text-3xl font-bold text-sky-600">
+            {data.recentPrescriptions.length}
+          </p>
+        </div>
+      </div>
+
+      {/* Today's appointments */}
+      <h2 className="text-2xl font-bold mt-10">Today's Appointments</h2>
+      <div className="mt-4 bg-white p-4 rounded-xl shadow">
+        {data.todayAppointments.length === 0 ? (
+          <p>No appointments today.</p>
+        ) : (
+          data.todayAppointments.map((a) => (
+            <div key={a.id} className="p-3 border-b">
+              <p className="font-medium">{a.patient_name}</p>
+              <p className="text-sm text-gray-600">{a.appointment_time}</p>
+            </div>
+          ))
+        )}
+      </div>
+
+    </div>
+  );
 }
