@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, FileText, Calendar, Activity, Heart, Pill, Download, Upload, Plus, X, Edit2, Save, AlertCircle, Check, Key, Clock, MessageCircle, ShieldCheck } from 'lucide-react';
 import PatientAppointmentBooking from './PatientAppointmentBooking';
 import PatientHealthChat from '../../components/patient/PatientHealthChat';
+import { useAuth } from '../../context/AuthContext';
 
 // API client configuration
 const API_BASE = 'http://localhost:4000';
@@ -285,7 +286,7 @@ function PatientAppointmentsWithToken({ appointments, onRefresh, token }) {
 }
 
 function PatientDashboard() {
-  const [token, setToken] = useState(localStorage.getItem('mv_token') || '');
+  const { token, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -376,7 +377,7 @@ function PatientDashboard() {
     console.error('Error loading data:', err);
     setError('Failed to load data. Please try again.');
     if (String(err).includes('401') || String(err).includes('403')) {
-      localStorage.removeItem('mv_token');
+      logout();
       window.location.href = '/login';
     }
   } finally {
@@ -482,8 +483,7 @@ function PatientDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('mv_token');
-    localStorage.removeItem('mv_role');
+    logout();
     window.location.href = '/login';
   };
 

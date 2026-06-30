@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Settings, CheckCircle, XCircle, AlertCircle, Key } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE = 'http://localhost:4000';
 
 function DoctorScheduleManagement() {
-  const token = localStorage.getItem('mv_token');
+  const { token } = useAuth();
   
   // Tabs
   const [activeTab, setActiveTab] = useState('schedule');

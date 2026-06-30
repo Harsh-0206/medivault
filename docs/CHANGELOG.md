@@ -51,3 +51,50 @@ Format: date, version, files changed, why, how verified, any deviations.
 
 ---
 
+### v1.0 Step 5 — Add rate limiting to auth endpoints
+- **What changed:**
+  - `backend/routes/authRoutes.js`: Applied `authLimiter` middleware to `POST /login` and `POST /refresh`
+  - `backend/middleware/rateLimiter.js`: Already existed (5 attempts per 15 minutes per IP)
+- **Why:** v1.0 Step 5. Brute-force protection on login and refresh endpoints.
+- **Verified:** Code review confirms middleware is wired on both routes. Live 6-attempt test requires running backend with DB (no `.env` in workspace).
+
+---
+
+### v1.0 Step 6 — Fix `/patient/search`
+- **What changed:**
+  - `backend/routes/patientRoutes.js`: Removed broken `req.app.get('db')` call; added direct `import db from "../config/db.js"` (same pattern as all other routes)
+- **Why:** v1.0 Step 6. `server.js` never sets `app.set('db')`, so the route always threw at runtime.
+- **Verified:** Static review — handler now uses the shared pool import. No remaining `req.app.get('db')` in patientRoutes.
+
+---
+
+### v1.0 Step 7 — Fix role-based redirect mismatches
+- **What changed:**
+  - `src/components/auth/RequireAuth.jsx`: Wrong-role redirects now go to `/doctor` and `/admin` (not `/doctor-dashboard` / `/admin-dashboard`); switched to `useAuth()` for token/role
+- **Why:** v1.0 Step 7. App routes are `/doctor` and `/admin`; old redirects caused loops/404s.
+- **Verified:** Grep of all `navigate(...)` calls — no remaining `-dashboard` suffix except `/patient-dashboard` (valid route in `App.jsx`).
+
+---
+
+### v1.0 Step 8 — Mount Admin routes
+- **What changed:**
+  - **[NEW]** `backend/controllers/adminController.js`: `getDoctorList`, `approveDoctor`, `rejectDoctor`, `getSystemStats`
+  - **[NEW]** `backend/routes/adminRoutes.js`: All four endpoints behind `requireRole('admin')`
+  - `backend/server.js`: Mounted `app.use('/admin', authenticateToken, adminRoutes)`
+  - `src/pages/admin/AdminDashboard.jsx`: Updated to call `GET /admin/doctors?status=pending` and use `id` instead of `_id`
+- **Why:** v1.0 Step 8. Admin UI existed but backend had no routes.
+- **Verified:** Static review of route wiring and UI API paths. End-to-end UI test requires admin user in DB.
+
+---
+
+### v1.0 Step 9 — Wire AuthContext
+- **What changed:**
+  - `src/context/AuthContext.jsx`: Rewritten to use `mv_token` / `mv_role` keys; exposes `login`, `logout`, `token`, `role`, `loading`
+  - `src/main.jsx`: Wrapped app in `<AuthProvider>`
+  - Updated components to use `useAuth()` instead of direct localStorage reads: `RequireAuth`, `AuthNavBar`, `Login`, `PatientDashboard`, `DoctorDashboard`, `DoctorPatientHistoryAccess`, `DoctorScheduleManagement`, `PrescriptionForm`, `PatientPrescriptions`, `PatientAppointmentBooking`
+  - `src/api/axiosClient.js`: Still reads token from localStorage for interceptors (AuthContext is the single writer)
+- **Why:** v1.0 Step 9. AuthContext existed but was unused; app had mixed auth state.
+- **Verified:** Grep — no component reads `localStorage.getItem('mv_token')` except `AuthContext` init and `axiosClient` interceptor.
+
+---
+

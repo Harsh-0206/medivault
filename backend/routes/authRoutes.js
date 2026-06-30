@@ -6,6 +6,7 @@ import {
   login,
   refresh
 } from "../controllers/authController.js";
+import { authLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.post("/register", registerPatient);
 router.post("/register-doctor", upload.single("document"), registerDoctor);
 
 // LOGIN & REFRESH
-router.post("/login", login);
-router.post("/refresh", refresh);
+router.post("/login", authLimiter, login);
+router.post("/refresh", authLimiter, refresh);
 
 export default router;

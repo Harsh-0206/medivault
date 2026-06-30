@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Search, User, MapPin, Star, X, Check, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE = 'http://localhost:4000';
 
 function PatientAppointmentBooking() {
-  const token = localStorage.getItem('mv_token');
+  const { token } = useAuth();
   
   // Search & Doctor Selection
   const [searchQuery, setSearchQuery] = useState('');

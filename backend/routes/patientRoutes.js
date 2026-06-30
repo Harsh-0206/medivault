@@ -2,6 +2,7 @@
 // patientRoutes.js
 // ==========================================
 import express from "express";
+import db from "../config/db.js";
 import { 
   getPatientProfile, 
   updatePatientProfile,
@@ -80,7 +81,6 @@ router.post("/rag/chat", patientRagChat);
 router.get("/search", async (req, res) => {
   try {
     const query = req.query.query || '';
-    const db = req.app.get('db'); // or however you access your db
     
     let sql = `
       SELECT 

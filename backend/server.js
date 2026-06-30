@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes.js";
 import appointmentRoutes from "./routes/appointments.js";
@@ -11,6 +12,7 @@ import fileRoutes from "./routes/fileRoutes.js";
 import apiAuthRoutes from "./routes/apiAuthRoutes.js";
 import apiTestRoutes from "./routes/apiTestRoutes.js";
 import db from "./config/db.js";
+import { authenticateToken } from "./middleware/auth.js";
 export const app = express();
 (async () => {
   try {
@@ -67,6 +69,7 @@ app.use("/uploads", express.static("uploads"));
 // import summaryRoutes from './routes/summaryRoutes.js';
 // Routes
 app.use("/auth", authRoutes);
+app.use("/admin", authenticateToken, adminRoutes);
 app.use("/patient", patientRoutes);
 app.use("/doctor", doctorRoutes);
 app.use("/appointments", appointmentRoutes);

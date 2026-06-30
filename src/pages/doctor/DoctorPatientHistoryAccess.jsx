@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AlertCircle, Calendar, FileText, Heart, Key, Pill, Search, ShieldAlert, ShieldCheck, User, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE = 'http://localhost:4000';
 
@@ -37,7 +38,7 @@ const DEMO_PATIENT_HISTORY = {
 };
 
 function DoctorPatientHistoryAccess() {
-  const token = localStorage.getItem('mv_token');
+  const { token } = useAuth();
   const [patientId, setPatientId] = useState('');
   const [loading, setLoading] = useState(false);
   const [emergencyLoading, setEmergencyLoading] = useState(false);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Mail, Lock, AlertCircle } from 'lucide-react';
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const [role, setRole] = useState("patient");
@@ -10,6 +10,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   async function submit(e) {
     // TEMP BYPASS
@@ -38,12 +39,7 @@ export default function Login() {
       return;
     }
 
-    // Save token
-    localStorage.setItem("mv_token", data.token);
-    localStorage.setItem("mv_role", data.role);
-
-
-    // Redirect
+    login(data.token, data.refreshToken, data.role);
     if (role === "patient") {
       navigate("/patient-dashboard");
     } else if (role === "doctor") {

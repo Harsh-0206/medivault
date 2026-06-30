@@ -94,31 +94,32 @@ These rules govern every action taken on this project, regardless of which versi
 ## 3. Current State
 *(Update this every session — this is the single most important section in this file. Whoever is ending a session: fill this in accurately before you stop. Whoever is starting a session: trust this section over your own assumptions, but verify against the code if something looks off.)*
 
-**Last updated by:** `<IDE/agent name, e.g. "Claude Code">` on `<date>`
+**Last updated by:** Cursor on 2026-06-30
 
-**Current version in progress:** `<e.g. v1.2 — Architecture Hardening>`
+**Current version in progress:** v1.1 — Folder Restructure & Clean Code (v1.0 fully complete)
 
-**Current step in progress:** `<e.g. Step 6 — Add input validation layer>`
+**Current step in progress:** Step 1 — Create the target folder structure
 
-**Status of current step:** `<Not started / In progress / Blocked / Complete, awaiting verification>`
+**Status of current step:** Not started
 
 **What was just completed (last session):**
-- `<bullet list of what was finished and verified — be specific>`
+- v1.0 Steps 5–9: rate limiting on auth routes, `/patient/search` db fix, RequireAuth redirect fixes, admin backend routes mounted, AuthContext wired into app
+- v1.0 Steps 1–4 were completed in a prior session (TLS, credential logging, env.js, Argon2)
 
 **What is in progress / half-done (if anything):**
-- `<exact file(s) and exact remaining work — specific enough that a stranger could finish it without guessing>`
+- None
 
 **Open questions / blockers waiting on the user:**
-- `<anything that needs a human decision before work can continue>`
+- No `.env` in repo — manual verification of rate limiting and admin approval flow requires local DB setup
 
 **Any unresolved deviations from the guide:**
-- `<short pointer to the docs/CHANGELOG.md deviation entry, or "None">`
+- None
 
 **Known broken / failing things right now (if any):**
-- `<be honest here — this is what prevents the next session from wasting time rediscovering a known issue>`
+- None known from static review; live tests not run (no DB env in workspace)
 
 **Next concrete action to take:**
-- `<the single next thing to do — should be copy-pasteable as a starting instruction>`
+- Open `MEDIVAULT_DETAILED_VERSION_GUIDE.md` v1.1 Step 1 and create the `apps/backend`, `apps/frontend`, `apps/rag-service` monorepo structure — move existing source files and fix all broken import paths.
 
 > Rules for this section: Don't leave it vague. "Working on backend stuff" is not acceptable. "v1.2 Step 6: validation added to `/auth/register` and `/appointments/book`; remaining routes still need it — see list in `docs/PROJECT_STATE.md`" is acceptable. If you're switching tools mid-step, say so explicitly and note exactly where it was left off — don't round up to "mostly done." Don't delete the previous session's filled-in content without first folding a dated summary into `docs/CHANGELOG.md`, so history isn't lost.
 
@@ -127,12 +128,12 @@ These rules govern every action taken on this project, regardless of which versi
 ## 4. Environment & Setup Recap
 *(So a new IDE doesn't have to rediscover this. Keep accurate — update whenever setup steps change, e.g. after Docker lands in v2.0.)*
 
-- **Stack:** `<e.g. React 19 + Vite + Tailwind / Express 5 + Node / MySQL 8 / Web3.js + Sepolia / Python 3.9+ subprocess → Groq>`
-- **Repo layout:** `<e.g. monorepo under apps/backend, apps/frontend, apps/rag-service — see MEDIVAULT_DETAILED_VERSION_GUIDE.md v1.1 for the full target structure>`
-- **How to run locally:** `<exact commands, e.g. npm install in each app, npm run dev in backend and frontend — update once Docker lands in v2.0>`
-- **How to run tests:** `<exact commands, once v1.3 exists>`
-- **Where secrets live:** `<e.g. .env locally via config/env.js abstraction; AWS Secrets Manager in deployed environments from v2.0 onward — never assume, check config/env.js>`
-- **Known environment quirks:** `<anything tool-specific that tripped up a previous session, e.g. "Python subprocess path differs on Windows vs Linux">`
+- **Stack:** React 19 + Vite + Tailwind / Express 5 + Node / MySQL 8 / Web3.js + Sepolia / Python 3.9+ subprocess → Groq
+- **Repo layout:** Single-root layout (`backend/`, `src/`) — target monorepo under `apps/` arrives in v1.1
+- **How to run locally:** `npm install` at repo root; create `backend/.env` with DB and secret vars; run backend with `node backend/server.js`; run frontend with `npm run dev`
+- **How to run tests:** Not yet — v1.3 adds test suite
+- **Where secrets live:** `.env` locally via `backend/config/env.js` abstraction; AWS Secrets Manager in deployed environments from v2.0 onward
+- **Known environment quirks:** Python subprocess path differs on Windows vs Linux; no `.env` committed to git
 
 ---
 

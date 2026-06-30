@@ -1,5 +1,5 @@
-// src/components/doctor/PrescriptionForm.jsx
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PrescriptionForm({ onCreated }) {
   const [patientId, setPatientId] = useState("");
@@ -10,7 +10,7 @@ export default function PrescriptionForm({ onCreated }) {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("mv_token");
+  const { token } = useAuth();
 
   async function submit(e) {
     e.preventDefault();

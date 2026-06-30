@@ -110,14 +110,14 @@ This document expands the original roadmap into a fully procedural, step-by-step
 
 ### Definition of Done — v1.0
 
-- [ ] `NODE_TLS_REJECT_UNAUTHORIZED = '0'` does not appear anywhere in the codebase
-- [ ] No `console.log` anywhere prints a credential, password, secret, or key value
-- [ ] Only Argon2 is used for password hashing; bcrypt code path is deleted
-- [ ] `express-rate-limit` is active on `/auth/login` and `/auth/refresh`
-- [ ] `/patient/search` returns real results, not an error
-- [ ] All role-based redirects land on real, existing routes with zero redirect loops
-- [ ] Admin can view pending doctors, approve, and reject — end to end through the UI
-- [ ] `AuthContext` is either fully wired into `main.jsx` or fully removed — no mixed state
+- [x] `NODE_TLS_REJECT_UNAUTHORIZED = '0'` does not appear anywhere in the codebase
+- [x] No `console.log` anywhere prints a credential, password, secret, or key value
+- [x] Only Argon2 is used for password hashing; bcrypt code path is deleted
+- [x] `express-rate-limit` is active on `/auth/login` and `/auth/refresh`
+- [x] `/patient/search` returns real results, not an error
+- [x] All role-based redirects land on real, existing routes with zero redirect loops
+- [x] Admin can view pending doctors, approve, and reject — end to end through the UI
+- [x] `AuthContext` is either fully wired into `main.jsx` or fully removed — no mixed state
 
 ---
 

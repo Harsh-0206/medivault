@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import DoctorScheduleManagement from './DoctorScheduleManagement';
 import DoctorPatientHistoryAccess from './DoctorPatientHistoryAccess';
 import { Calendar, Users, FileText, Key, Search, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 function PatientSearch() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("mv_token");
+  const { token } = useAuth();
 
   async function search() {
     if (!query.trim()) {
@@ -130,7 +131,7 @@ export default function DoctorDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("mv_token");
+  const { token } = useAuth();
 
   async function load() {
     setLoading(true);

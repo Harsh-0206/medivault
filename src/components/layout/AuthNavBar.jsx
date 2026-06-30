@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthNavBar() {
-  const token = localStorage.getItem("mv_token");
-  const role = localStorage.getItem("mv_role");
+  const { token, role, logout: authLogout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,8 +13,7 @@ export default function AuthNavBar() {
   const isLandingPage = location.pathname === "/";
 
   function logout() {
-    localStorage.removeItem("mv_token");
-    localStorage.removeItem("mv_role");
+    authLogout();
     navigate("/");
   }
 
@@ -77,7 +76,7 @@ export default function AuthNavBar() {
 
           {role === "admin" && <Link to="/admin">Admin</Link>}
           {role === "doctor" && <Link to="/doctor">Doctor</Link>}
-          {role === "patient" && <Link to="/patient">Patient</Link>}
+          {role === "patient" && <Link to="/patient-dashboard">Patient</Link>}
         </ul>
       </div>
     </nav>

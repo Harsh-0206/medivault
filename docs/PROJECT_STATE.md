@@ -11,22 +11,25 @@ Turn-by-turn status snapshot. Updated within a session as work progresses.
 
 ## Current Status
 
-**Step in progress:** Pre-Work complete. Starting Step 1.
+**Step in progress:** v1.0 complete — ready to start v1.1
 
 ### Completed this session:
-- [x] Pre-work: Created docs/CHANGELOG.md, docs/DECISIONS.md, docs/PROJECT_STATE.md
+- [x] Step 5 — Rate limiting wired to `/auth/login` and `/auth/refresh`
+- [x] Step 6 — `/patient/search` uses direct `db` import
+- [x] Step 7 — `RequireAuth` redirects fixed (`/doctor`, `/admin`)
+- [x] Step 8 — Admin controller, routes, and UI API alignment
+- [x] Step 9 — `AuthContext` wired into `main.jsx`; components use `useAuth()`
 
-### In progress:
-- [ ] Step 1 — Remove disabled TLS verification
+### Previously completed:
+- [x] Step 1 — TLS verification restored
+- [x] Step 2 — DB credential logging removed
+- [x] Step 3 — `config/env.js` secrets abstraction
+- [x] Step 4 — Argon2-only hashing with bcrypt rehash-on-login migration
 
-### Remaining steps:
-- Step 2 — Stop logging credentials
-- Step 3 — Create config/env.js
-- Step 4 — Standardize on Argon2
-- Step 5 — Rate limiting
-- Step 6 — Fix /patient/search
-- Step 7 — Fix redirect mismatches
-- Step 8 — Admin routes
-- Step 9 — AuthContext wiring
+### Next version (v1.1 — Folder Restructure & Clean Code):
+- Step 1 — Create `apps/` monorepo folder structure
+
+### Open questions / blockers:
+- No `.env` in workspace — live endpoint tests (rate limit, admin flow, search) need local DB + env before manual verification
 
 ---

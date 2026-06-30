@@ -28,6 +28,8 @@ api.interceptors.response.use(
   err => {
     if (err.response?.status === 401) {
       localStorage.removeItem("mv_token");
+      localStorage.removeItem("mv_role");
+      localStorage.removeItem("mv_refreshToken");
       window.location.href = "/login";
     }
     return Promise.reject(err);

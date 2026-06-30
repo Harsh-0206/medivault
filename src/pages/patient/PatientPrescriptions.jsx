@@ -1,9 +1,9 @@
-// src/pages/patient/PatientPrescriptions.jsx
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PatientPrescriptions() {
   const [prescriptions, setPrescriptions] = useState(null);
-  const token = localStorage.getItem("mv_token");
+  const { token } = useAuth();
 
   async function load() {
     try {

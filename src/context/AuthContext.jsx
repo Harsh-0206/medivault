@@ -1,45 +1,40 @@
-// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
+
+const TOKEN_KEY = 'mv_token';
+const ROLE_KEY = 'mv_role';
+const REFRESH_KEY = 'mv_refreshToken';
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('accessToken'));
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [role, setRole] = useState(() => localStorage.getItem(ROLE_KEY));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if token is valid
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser(payload);
-      } catch (error) {
-        logout();
-      }
-    }
     setLoading(false);
-  }, [token]);
+  }, []);
 
-  const login = (accessToken, refreshToken, userData) => {
-    localStorage.setItem('accessToken', accessToken);
+  const login = (accessToken, refreshToken, userRole) => {
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    localStorage.setItem(ROLE_KEY, userRole);
     if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem(REFRESH_KEY, refreshToken);
     }
     setToken(accessToken);
-    setUser(userData);
+    setRole(userRole);
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem(REFRESH_KEY);
     setToken(null);
-    setUser(null);
+    setRole(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ token, role, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
