@@ -23,15 +23,18 @@ jobs:
       JWT_REFRESH_SECRET: ci-refresh-secret
       DATA_STORE: mongo
       MONGO_URI: mongodb://localhost:27017/medivault_test
+      DB_PASS: ci-db-pass
+      PRIVATE_KEY: "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      GROQ_API_KEY: ci-groq-key
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Install root dependencies
@@ -56,10 +59,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Install root dependencies
@@ -81,10 +84,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Install root dependencies
@@ -95,11 +98,14 @@ jobs:
         run: npm run build
 
       - name: Run Cypress E2E tests
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: apps/frontend
-          start: npm run preview -- --host 127.0.0.1 --port 5173
-          wait-on: "http://localhost:5173"
-          wait-on-timeout: 60
-          browser: chrome
-          headless: true
+        working-directory: apps/frontend
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://localhost:5173 >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://localhost:5173 >/dev/null
+          npm run test:e2e
