@@ -102,7 +102,7 @@ jobs:
         run: |
           npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
           for i in {1..30}; do
-            if curl -fsS http://localhost:5173 >/dev/null; then
+            if curl -fsS http://localhost:5173 >/dev/null 2>&1; then
               break
             fi
             sleep 2

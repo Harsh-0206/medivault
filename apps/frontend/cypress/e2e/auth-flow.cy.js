@@ -1,17 +1,5 @@
-/**
- * E2E Spec: Authentication Flow
- *
- * Covers:
- *  - Landing page renders and has a Login CTA
- *  - Register page: fills form and submits
- *  - Login page: fills credentials, selects role, submits
- *  - Redirected to the correct dashboard after login
- *  - Unauthenticated access to a protected route redirects to /login
- */
-
 describe("Authentication Flow", () => {
   beforeEach(() => {
-    // Stub API calls so the frontend runs standalone
     cy.intercept("POST", "**/auth/register", {
       statusCode: 200,
       body: { message: "Patient registered successfully" },
@@ -25,6 +13,16 @@ describe("Authentication Flow", () => {
         role: "patient",
       },
     }).as("loginRequest");
+
+    cy.intercept("GET", "**/patient/profile", {
+      statusCode: 200,
+      body: { patient: { id: 1, name: "Alice Smith", email: "alice@example.com" } },
+    }).as("getProfile");
+
+    cy.intercept("GET", "**/patient/dashboard", {
+      statusCode: 200,
+      body: { upcomingAppointments: [], latestVitals: null },
+    }).as("getDashboard");
   });
 
   it("landing page has login CTA", () => {
@@ -34,10 +32,13 @@ describe("Authentication Flow", () => {
 
   it("register page: fills and submits registration form", () => {
     cy.visit("/register");
-    cy.get("input[placeholder*='name' i]").first().type("Alice Smith");
-    cy.get("input[type='email']").type("alice@example.com");
-    cy.get("input[type='password']").first().type("securepass123");
-    cy.get("form").submit();
+    cy.get("input[name='name']").type("Alice Smith");
+    cy.get("input[name='email']").type("alice@example.com");
+    cy.get("input[name='password']").type("securepass123");
+
+    cy.on("window:alert", () => true);
+    cy.contains("button", /register as patient/i).click();
+
     cy.wait("@registerRequest").its("request.body").should("include", {
       email: "alice@example.com",
     });
@@ -48,14 +49,10 @@ describe("Authentication Flow", () => {
 
     cy.get("input[type='email']").type("alice@example.com");
     cy.get("input[type='password']").type("securepass123");
-
-    // Select patient role (default is patient — just confirm button active)
     cy.contains("button", /patient/i).click();
 
     cy.get("form").submit();
     cy.wait("@loginRequest");
-
-    // After stubbed login, auth context stores token; should land on patient dashboard
     cy.url().should("include", "/patient-dashboard");
   });
 
