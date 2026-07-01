@@ -98,8 +98,8 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: apps/frontend
-          start: npm run preview
-          wait-on: "http://localhost:4173"
+          start: npm run preview -- --host 127.0.0.1 --port 5173
+          wait-on: "http://localhost:5173"
           wait-on-timeout: 60
           browser: chrome
           headless: true

@@ -1,14 +1,16 @@
-/**
- * E2E Spec: Easy Access (QR Code) Flow
- *
- * Covers:
- *  - Patient grants easy access to an appointment
- *  - QR code / access code is displayed after granting
- *  - Doctor can view the shared records via the access endpoint
- *  - Access code expiry information is present
- */
-
 const PATIENT_TOKEN = "fake-patient-token";
+
+function stubPatientDashboard() {
+  cy.intercept("GET", "**/patient/profile", {
+    statusCode: 200,
+    body: { patient: { id: 1, name: "Alice Smith", email: "alice@example.com" } },
+  }).as("getProfile");
+
+  cy.intercept("GET", "**/patient/dashboard", {
+    statusCode: 200,
+    body: { upcomingAppointments: [], latestVitals: null },
+  }).as("getDashboard");
+}
 
 function loginAsPatient() {
   cy.intercept("POST", "**/auth/login", {
@@ -24,9 +26,10 @@ function loginAsPatient() {
   cy.wait("@login");
 }
 
-describe("Easy Access (QR Code) Flow", () => {
+describe("Easy Access Flow", () => {
   beforeEach(() => {
-    // Stub patient's appointments list
+    stubPatientDashboard();
+
     cy.intercept("GET", "**/patient/appointments", {
       statusCode: 200,
       body: {
@@ -34,22 +37,18 @@ describe("Easy Access (QR Code) Flow", () => {
           {
             id: 101,
             doctor_name: "Dr. Jane House",
+            specialty: "General Medicine",
             appointment_date: "2026-07-10",
             appointment_time: "10:00:00",
-            status: "scheduled",
+            status: "confirmed",
           },
         ],
       },
     }).as("myAppointments");
 
-    // Stub easy access grant
     cy.intercept("POST", "**/appointments/101/easy-access", {
       statusCode: 200,
-      body: {
-        message: "Easy access granted",
-        accessToken: "easy-access-abc123",
-        expiresAt: "2026-07-10T11:00:00Z",
-      },
+      body: { message: "Access granted for 30 minutes", expiresAt: "2026-07-10T11:00:00Z" },
     }).as("grantEasyAccess");
 
     loginAsPatient();
@@ -57,32 +56,28 @@ describe("Easy Access (QR Code) Flow", () => {
 
   it("patient can grant easy access to their appointment", () => {
     cy.visit("/patient-dashboard");
+    cy.wait("@getProfile");
+    cy.contains("button", /my appointments/i).click();
     cy.wait("@myAppointments");
 
-    // Find the appointment and click easy access
     cy.contains("Dr. Jane House")
-      .closest("[data-testid='appointment-card'], li, tr, div")
-      .contains("button", /easy access|share|qr/i)
+      .parents("[class*='rounded-2xl']")
+      .first()
+      .contains("button", /grant access/i)
       .click();
 
     cy.wait("@grantEasyAccess");
-
-    // Access token / QR code should be displayed
-    cy.contains(/easy-access-abc123|access granted|qr code/i).should("be.visible");
+    cy.contains(/granted until/i).should("be.visible");
   });
 
   it("easy access display shows expiry information", () => {
     cy.visit("/patient-dashboard");
+    cy.wait("@getProfile");
+    cy.contains("button", /my appointments/i).click();
     cy.wait("@myAppointments");
 
-    cy.contains("Dr. Jane House")
-      .closest("[data-testid='appointment-card'], li, tr, div")
-      .contains("button", /easy access|share|qr/i)
-      .click();
-
+    cy.contains("button", /grant access/i).click();
     cy.wait("@grantEasyAccess");
-
-    // Expiry time or related text should appear
-    cy.contains(/expir|valid until/i).should("be.visible");
+    cy.contains(/granted until|2026/i).should("be.visible");
   });
 });

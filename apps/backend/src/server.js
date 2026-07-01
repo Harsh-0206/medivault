@@ -20,7 +20,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const UPLOAD_DIR = resolve(__dirname, "../uploads");
 export const app = express();
-(async () => {
+
+export async function initializeDatabase() {
   if (isMongoEnabled()) {
     try {
       await getMongoDb();
@@ -38,7 +39,15 @@ export const app = express();
       console.error("❌ MySQL Connection Failed:", err.message);
     }
   }
-})();
+}
+
+export async function startServer(port = 4000) {
+  await initializeDatabase();
+  return app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
 const allowedOrigin = "http://localhost:5173";
 console.log(">>> SERVER STARTED <<<");
 
@@ -97,9 +106,7 @@ app.use("/files", fileRoutes);
 app.use(errorHandler);
 
 if (process.env.NODE_ENV !== "test") {
-  app.listen(4000, () => {
-    console.log("Server running on port 4000");
-  });
+  startServer();
 }
 
 export default app;

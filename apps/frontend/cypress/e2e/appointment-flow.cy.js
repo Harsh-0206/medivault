@@ -1,14 +1,3 @@
-/**
- * E2E Spec: Appointment Booking Flow
- *
- * Covers:
- *  - Patient logs in and navigates to the appointment booking page
- *  - Doctor list loads and a doctor can be selected
- *  - Available slots are fetched and displayed
- *  - Appointment is booked; success message appears
- *  - Appointment appears in "My Appointments" list
- */
-
 const PATIENT_TOKEN = "fake-patient-token";
 
 function loginAsPatient() {
@@ -27,8 +16,7 @@ function loginAsPatient() {
 
 describe("Appointment Booking Flow", () => {
   beforeEach(() => {
-    // Stub doctor list
-    cy.intercept("GET", "**/appointments/doctors", {
+    cy.intercept("GET", "**/doctors/search**", {
       statusCode: 200,
       body: {
         doctors: [
@@ -43,7 +31,11 @@ describe("Appointment Booking Flow", () => {
       },
     }).as("getDoctors");
 
-    // Stub slot retrieval
+    cy.intercept("GET", "**/appointments/patient", {
+      statusCode: 200,
+      body: { appointments: [] },
+    }).as("myAppointments");
+
     cy.intercept("GET", "**/appointments/doctor/42/slots**", {
       statusCode: 200,
       body: {
@@ -56,27 +48,10 @@ describe("Appointment Booking Flow", () => {
       },
     }).as("getSlots");
 
-    // Stub booking
     cy.intercept("POST", "**/appointments", {
       statusCode: 200,
-      body: { appointmentId: 101, message: "Appointment booked successfully" },
+      body: { appointmentId: 101, message: "Appointment requested successfully" },
     }).as("bookAppointment");
-
-    // Stub my appointments
-    cy.intercept("GET", "**/patient/appointments", {
-      statusCode: 200,
-      body: {
-        appointments: [
-          {
-            id: 101,
-            doctor_name: "Dr. Jane House",
-            appointment_date: "2026-07-06",
-            appointment_time: "09:00:00",
-            status: "scheduled",
-          },
-        ],
-      },
-    }).as("myAppointments");
 
     loginAsPatient();
   });
@@ -84,28 +59,23 @@ describe("Appointment Booking Flow", () => {
   it("navigates to booking page and selects a doctor", () => {
     cy.visit("/patient/book-appointment");
     cy.wait("@getDoctors");
-    cy.contains("Dr. Jane House").should("be.visible").click();
+    cy.contains("Dr. Jane House").should("be.visible");
+    cy.contains("button", "Select").click();
+    cy.contains("Dr. Jane House").should("be.visible");
   });
 
   it("selects a slot and books an appointment successfully", () => {
     cy.visit("/patient/book-appointment");
     cy.wait("@getDoctors");
 
-    // Select doctor
-    cy.contains("Dr. Jane House").click();
-
-    // Pick a date (the component uses a date input)
+    cy.contains("button", "Select").click();
     cy.get("input[type='date']").type("2026-07-06");
     cy.wait("@getSlots");
 
-    // Select first available slot
-    cy.contains("09:00").click();
-
-    // Submit booking
-    cy.contains("button", /confirm|book/i).click();
+    cy.contains("9:00 AM").click();
+    cy.contains("button", /confirm appointment/i).click();
     cy.wait("@bookAppointment");
 
-    // Success feedback should appear
-    cy.contains(/booked|confirmed|success/i).should("be.visible");
+    cy.contains(/appointment requested/i).should("be.visible");
   });
 });
